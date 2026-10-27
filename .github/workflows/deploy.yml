@@ -3,6 +3,8 @@ name: Deploy
 on:
   push:
     branches: [develop]
+  # Manual run: refreshes the master credentials after an RDS secret rotation.
+  workflow_dispatch:
 
 permissions:
   contents: read
