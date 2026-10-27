@@ -1,0 +1,50 @@
+service: turfbook-platform
+frameworkVersion: '~4.43.0'
+
+stages:
+  default:
+    params:
+      privateSubnetA: subnet-0163ffcf34770d937
+      privateSubnetB: subnet-0f44784a3de31da43
+      lambdaDbSecurityGroup: sg-094dae12950b8a2e9
+
+provider:
+  name: aws
+  runtime: python3.12
+  architecture: arm64
+  region: us-east-1
+  logRetentionInDays: 7
+  stackTags:
+    project: turfbook
+    service: turfbook-platform
+    stage: ${sls:stage}
+  vpc:
+    subnetIds:
+      - ${param:privateSubnetA}
+      - ${param:privateSubnetB}
+    securityGroupIds:
+      - ${param:lambdaDbSecurityGroup}
+  iam:
+    role:
+      mode: perFunction
+      permissionsBoundary: arn:aws:iam::${aws:accountId}:policy/turfbook-lambda-boundary
+  environment: ${file(./deploy/env/${sls:stage}.yml)}
+
+custom:
+  pythonRequirements:
+    fileName: requirements/base.txt
+    layer: true
+    dockerizePip: true
+
+package:
+  patterns:
+    - '!./**'
+    - 'app/**'
+    - 'config/**'
+
+functions:
+  db-provisioner:
+    handler: app.db_provisioner.handler.handler
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    timeout: 30
