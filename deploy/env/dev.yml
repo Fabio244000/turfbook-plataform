@@ -1,4 +1,4 @@
 DEPLOY_ID: ${sls:instanceId}
-MASTER_DB_HOST: ${ssm:/turfbook/platform/dev/master_db_host}
+MASTER_DB_HOST: ${ssm:/turfbook/dev/db_host}
 MASTER_DB_USER: '{{resolve:secretsmanager:rds!db-38badb2a-b892-42b9-86bd-4cbf5a10efd5:SecretString:username}}'
 MASTER_DB_PASSWORD: '{{resolve:secretsmanager:rds!db-38badb2a-b892-42b9-86bd-4cbf5a10efd5:SecretString:password}}'
