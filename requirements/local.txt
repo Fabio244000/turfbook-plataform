@@ -1,9 +1,9 @@
 -r base.txt
-coverage==7.17.2
-mypy==2.1.0
-mypy_extensions==1.1.0
-pre_commit==4.6.0
-pytest==8.4.2
-pytest-cov==7.0.0
+coverage==7.17.3
+mypy==2.4.1
+mypy_extensions==1.2.0
+pre_commit==4.7.0
+pytest==9.2.0
+pytest-cov==7.1.0
 pytest-testmon==2.3.0
-ruff==0.15.17
+ruff==0.17.5
