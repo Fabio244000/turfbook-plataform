@@ -31,13 +31,13 @@ def admin_connection() -> Generator[Connection[TupleRow], None, None]:
 @pytest.fixture
 def unique_name(
     admin_connection: Connection[TupleRow],
-) -> Generator[Callable[[str], str], None, None]:
+) -> Generator[Callable[..., str], None, None]:
     """Returns unique names for databases and roles, and drops them after the test,
     so integration tests never collide or leave anything behind."""
     created: list[str] = []
 
-    def make(prefix: str) -> str:
-        name = f'{prefix}_{uuid4().hex[:8]}'
+    def make(prefix: str, suffix: str = '') -> str:
+        name = f'{prefix}_{uuid4().hex[:8]}{suffix}'
         created.append(name)
         return name
 

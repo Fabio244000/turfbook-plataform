@@ -1,4 +1,4 @@
-from psycopg import Connection, sql
+from psycopg import Connection, OperationalError, connect, sql
 from psycopg.rows import TupleRow
 
 CONNECTION_LIMIT = 20
@@ -15,6 +15,13 @@ class PostgresDatabaseAdmin:
 
     def database_exists(self, name: str) -> bool:
         return self._exists('SELECT 1 FROM pg_database WHERE datname = %s', name)
+
+    def database_owner(self, name: str) -> str | None:
+        row = self._connection.execute(
+            'SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname = %s',
+            (name,),
+        ).fetchone()
+        return None if row is None else str(row[0])
 
     def role_exists(self, name: str) -> bool:
         return self._exists('SELECT 1 FROM pg_roles WHERE rolname = %s', name)
@@ -41,8 +48,45 @@ class PostgresDatabaseAdmin:
             sql.SQL('GRANT CONNECT ON DATABASE {} TO {}').format(database, role)
         )
 
+    def drop_database(self, name: str) -> None:
+        # FORCE closes the connections to it first (the admin holds the owner's
+        # privileges through the GRANT of create_role, so it may terminate them).
+        self._execute(
+            sql.SQL('DROP DATABASE IF EXISTS {} WITH (FORCE)').format(
+                sql.Identifier(name)
+            )
+        )
+
     def _exists(self, query: str, name: str) -> bool:
         return self._connection.execute(query, (name,)).fetchone() is not None
 
     def _execute(self, statement: sql.Composed) -> None:
         self._connection.execute(statement)
+
+
+class PostgresLoginChecker:
+    """LoginChecker adapter: opens and closes one short connection as the user. Any
+    failure to connect (wrong password, no CONNECT on the database, its connection
+    limit) means it cannot log in."""
+
+    def __init__(
+        self, host: str, port: int, connect_timeout: int, maintenance_db: str
+    ) -> None:
+        self._host = host
+        self._port = port
+        self._connect_timeout = connect_timeout
+        self._maintenance_db = maintenance_db
+
+    def can_log_in(self, username: str, password: str, database: str | None) -> bool:
+        try:
+            with connect(
+                host=self._host,
+                port=self._port,
+                user=username,
+                password=password,
+                dbname=database or self._maintenance_db,
+                connect_timeout=self._connect_timeout,
+            ):
+                return True
+        except OperationalError:
+            return False

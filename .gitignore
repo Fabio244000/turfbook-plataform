@@ -35,3 +35,7 @@ tickets/
 
 # Task lists (local only)
 docs/
+
+# Test data (pytest-cov, pytest-testmon)
+.coverage
+.testmondata
