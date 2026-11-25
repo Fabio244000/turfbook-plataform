@@ -1,6 +1,5 @@
 #!/bin/sh
-# CI only (setup-script of the shared CI): creates the RDS-like admin the tests connect
-# as. The shared CI runs this script before it waits for Postgres, so it waits first.
+# The CI runs this script before Postgres is ready, so it waits for it first.
 set -eu
 
 export PGHOST=localhost PGPORT=5432 PGUSER=turfbook PGPASSWORD=turfbook PGDATABASE=postgres

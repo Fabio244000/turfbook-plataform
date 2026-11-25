@@ -1,5 +1,3 @@
-# Weekly updates to develop, one grouped PR per ecosystem, never for a version released
-# less than 7 days ago (reference/cicd.md, "Maintainability").
 version: 2
 updates:
   - package-ecosystem: github-actions

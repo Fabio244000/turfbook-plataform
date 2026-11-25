@@ -1,10 +1,5 @@
 name: Deploy
 
-# On push to develop (a merged pull request), or by hand to redeploy an earlier commit of
-# develop. A run by hand also refreshes the RDS master credentials after a rotation
-# (CLAUDE.md, "Rotation"). CI first; then the shared deploy: verify, change, roll back
-# (ticket-manager/conventions/platform.md, §8; turfbook-workflows/README.md). No
-# db-secret: platform has no database of its own.
 on:
   push:
     branches: [develop]
@@ -20,8 +15,7 @@ permissions:
 
 jobs:
   ci:
-    # Whole suite with coverage. actionlint 1.7.12 does not accept the '$/'
-    # self-repository syntax yet.
+    # actionlint 1.7.12 does not accept the '$/' self-repository syntax yet.
     uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository]
     with:
       ref: ${{ inputs.sha }}
@@ -31,7 +25,7 @@ jobs:
     permissions:
       contents: read
       id-token: write # OIDC: assume the deploy role, no long-lived AWS keys
-    uses: Fabio244000/turfbook-workflows/.github/workflows/serverless-deploy.yml@8352e51bfe362391464aee17d910cf72b90c60d6 # main
+    uses: Fabio244000/turfbook-workflows/.github/workflows/serverless-deploy.yml@34a36b2693d259d0ae9332f9f508020b32a03807 # main
     with:
       stage: dev
       service: platform
