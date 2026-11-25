@@ -13,9 +13,11 @@ provider:
   runtime: python3.12
   architecture: arm64
   region: us-east-1
-  # A failed deploy keeps its resources and the shared deploy rolls the stack back
-  # itself (ticket-manager/conventions/platform.md, §8).
-  disableRollback: true
+  # Decided per deploy by the shared deploy (ticket-manager/conventions/platform.md, §8):
+  # 'true' only when it brings new migrations, 'false' otherwise (CloudFormation's
+  # automatic rollback, which allows replacing the layer). platform has no database, so
+  # its deploys always pass 'false'. Without the param: 'true'.
+  disableRollback: ${strToBool(${param:disableRollback, 'true'})}
   logRetentionInDays: 7
   stackTags:
     project: turfbook
