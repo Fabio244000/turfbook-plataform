@@ -24,7 +24,7 @@ jobs:
   # turfbook-workflows/README.md). The tests need a Postgres server and an admin with the
   # RDS master privileges (no superuser), created by the setup script.
   ci:
-    uses: Fabio244000/turfbook-workflows/.github/workflows/python-ci.yml@b542bd081c7af18167c9038c8934f1e905045399 # main
+    uses: Fabio244000/turfbook-workflows/.github/workflows/python-ci.yml@8352e51bfe362391464aee17d910cf72b90c60d6 # main
     with:
       ref: ${{ inputs.ref }}
       postgres-db: postgres
