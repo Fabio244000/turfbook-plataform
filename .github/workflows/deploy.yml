@@ -1,10 +1,5 @@
 name: Deploy
 
-# On push to develop (a merged pull request), or by hand to redeploy an earlier commit of
-# develop. A run by hand also refreshes the RDS master credentials after a rotation
-# (CLAUDE.md, "Rotation"). CI first; then the shared deploy: verify, change, roll back
-# (ticket-manager/conventions/platform.md, §8; turfbook-workflows/README.md). No
-# db-secret: platform has no database of its own.
 on:
   push:
     branches: [develop]
@@ -20,8 +15,7 @@ permissions:
 
 jobs:
   ci:
-    # Whole suite with coverage. actionlint 1.7.12 does not accept the '$/'
-    # self-repository syntax yet.
+    # actionlint 1.7.12 does not accept the '$/' self-repository syntax yet.
     uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository]
     with:
       ref: ${{ inputs.sha }}

@@ -20,9 +20,6 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Pre-commit ‖ Tests ‖ Audit, and Coverage inside the deploy (map and inputs:
-  # turfbook-workflows/README.md). The tests need a Postgres server and an admin with the
-  # RDS master privileges (no superuser), created by the setup script.
   ci:
     uses: Fabio244000/turfbook-workflows/.github/workflows/python-ci.yml@34a36b2693d259d0ae9332f9f508020b32a03807 # main
     with:
