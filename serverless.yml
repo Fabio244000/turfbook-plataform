@@ -1,5 +1,5 @@
 service: turfbook-platform
-frameworkVersion: '~4.43.0'
+frameworkVersion: '~4.46.0'
 
 stages:
   default:
@@ -13,6 +13,9 @@ provider:
   runtime: python3.12
   architecture: arm64
   region: us-east-1
+  # A failed deploy keeps its resources and the shared deploy rolls the stack back
+  # itself (ticket-manager/conventions/platform.md, §8).
+  disableRollback: true
   logRetentionInDays: 7
   stackTags:
     project: turfbook
@@ -25,6 +28,9 @@ provider:
     securityGroupIds:
       - ${param:lambdaDbSecurityGroup}
   iam:
+    # CloudFormation creates the stack's resources with the service's own deploy role
+    # (ticket-manager/conventions/aws.md, §4); the CI role only passes it.
+    deploymentRole: arn:aws:iam::${aws:accountId}:role/turfbook-deploy-platform-cfn
     role:
       mode: perFunction
       permissionsBoundary: arn:aws:iam::${aws:accountId}:policy/turfbook-lambda-boundary

@@ -10,6 +10,7 @@ from tests.fakes.database_admin import FakeDatabaseAdmin
 DB_NAME = 'turfbook_identity_dev'
 USERNAME = 'identity_dev_db_user'
 PASSWORD = 'Abc123def456Ghi'
+OTHER_USERNAME = 'owner_dev_db_user'
 REQUEST = ProvisionRequest(DB_NAME, USERNAME, PASSWORD)
 
 
@@ -21,10 +22,10 @@ class TestProvision:
 
         assert result == {'status': 'created'}
         assert admin.roles == {USERNAME: PASSWORD}
-        assert admin.owners == {DB_NAME: USERNAME}
+        assert admin.databases == {DB_NAME: USERNAME}
 
     def test_fails_when_the_database_is_already_provisioned(self) -> None:
-        admin = FakeDatabaseAdmin(databases={DB_NAME})
+        admin = FakeDatabaseAdmin(databases={DB_NAME: OTHER_USERNAME})
 
         with pytest.raises(DatabaseAlreadyProvisionedError, match=DB_NAME):
             provision(REQUEST, admin)
@@ -32,18 +33,20 @@ class TestProvision:
         assert admin.roles == {}
 
     def test_checks_the_database_before_the_user(self) -> None:
-        admin = FakeDatabaseAdmin(databases={DB_NAME}, roles={USERNAME})
+        admin = FakeDatabaseAdmin(
+            databases={DB_NAME: USERNAME}, roles={USERNAME: PASSWORD}
+        )
 
         with pytest.raises(DatabaseAlreadyProvisionedError):
             provision(REQUEST, admin)
 
     def test_fails_when_the_user_already_exists(self) -> None:
-        admin = FakeDatabaseAdmin(roles={USERNAME})
+        admin = FakeDatabaseAdmin(roles={USERNAME: PASSWORD})
 
         with pytest.raises(UserAlreadyExistsError, match=USERNAME):
             provision(REQUEST, admin)
 
-        assert admin.databases == set()
+        assert admin.databases == {}
 
     def test_drops_the_new_role_when_the_database_cannot_be_created(self) -> None:
         admin = FakeDatabaseAdmin(create_database_error=RuntimeError('disk full'))
